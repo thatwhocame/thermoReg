@@ -15,6 +15,9 @@ Components:
 6. Wires
 7. Box
 8. Patience 
+
 ![photo_2021-07-06_00-06-56](https://user-images.githubusercontent.com/66080483/124518049-27864d00-ddee-11eb-849c-b20946c32d1a.jpg)
 ![photo_2021-07-06_00-06-58](https://user-images.githubusercontent.com/66080483/124518052-281ee380-ddee-11eb-88da-7f9a52292e30.jpg)
 The sensor is placed at some distance from the control unit so that it can be easily shoved into the climate chamber
+
+In this (v1.0) version the controller can only control humidity with a dehumidifier and humidifier. Because the controller was placed in the refrigerator, where there is an accurate temperature control.
