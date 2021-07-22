@@ -22,3 +22,6 @@ Components:
 The sensor is placed at some distance from the control unit so that it can be easily shoved into the climate chamber
 
 In this (v1.0) version the controller can only control humidity with a dehumidifier and humidifier. Because the controller was placed in the refrigerator, where there is an accurate temperature control.
+
+----------------------------------------------------------------------
+If these materials were useful to you, please subscribe
