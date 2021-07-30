@@ -1,5 +1,7 @@
-#define RegUPpin 11
-#define RegDOWNpin 10
+#define tRegUPpin 9
+#define tRegDOWNpin 12
+#define hRegUPpin 11
+#define hRegDOWNpin 10
 #include <Wire.h>
 #include <Sodaq_SHT2x.h>
 #include <LiquidCrystal_I2C.h>
@@ -22,34 +24,40 @@ float temp = 10.00; // initial value of temperature
 float hum = 10.00; // initial value of humidity
 float tValue; // variable for temp from gy-21
 float hValue; // variable for hum from gy-21
-bool cur; // variable to track the cursor
+int cur; // variable to track the cursor
 int i = 0; // iterator
 static uint32_t tmr; //timer for millis()
+float hhyst = 5.00;
+float thyst = 5.00;
 
 void setup()
 {
   hum = EEPROM.read(0); // Read hum from eeprom
-  temp = EEPROM.read(1); // Read temp from eeprom   
-  pinMode(RegUPpin, OUTPUT); // PinMode of relay
-  pinMode(RegDOWNpin, OUTPUT); 
-  digitalWrite(RegUPpin, 1); // initial state
-  digitalWrite(RegDOWNpin, 1);
+  temp = EEPROM.read(1); // Read temp from eeprom
+  thyst = EEPROM.read(2); // Read thyst from eeprom
+  hhyst = EEPROM.read(3); // Read hhyst from eeprom      
+  pinMode(hRegUPpin, OUTPUT); // PinMode of relay
+  pinMode(hRegDOWNpin, OUTPUT); 
+  digitalWrite(hRegUPpin, 1); // initial state
+  digitalWrite(hRegDOWNpin, 1);
+  pinMode(tRegUPpin, OUTPUT); // PinMode of relay
+  pinMode(tRegDOWNpin, OUTPUT); 
+  digitalWrite(tRegUPpin, 1); // initial state
+  digitalWrite(tRegDOWNpin, 1);
   Wire.begin();                                                        
   lcd.init(); 
-  lcd.backlight();
   lcd.clear();
   lcd.command(0b101000);
   lcd.createChar(4, bukva_P); // creating simbols
   lcd.createChar(2, bukva_Y);
   lcd.createChar(3, bukva_L);
   lcd.createChar(5, bukva_ZH);
-  cur = 0;
+  cur = 1;
   lcd.setCursor(0,1);
   lcd.print("\x3E"); // cursor simbol
   currentValues();                       
 }
-void loop()
-{
+void loop() {
   btn3.tick();
   btn7.tick(); // tracking the button state
   btn8.tick();
@@ -58,100 +66,103 @@ void loop()
     softReset();
   }
   if (btn3.isClick()) { //processing of clicks
-    if (!cur) {
-      lcd.setCursor(0,3);
-      lcd.print("\x3E");
-      lcd.setCursor(0,1);
-      lcd.print(" ");
-      cur = 1;
-    }
-    else if (cur) {
-      lcd.setCursor(0,1);
-      lcd.print("\x3E");
-      lcd.setCursor(0,3);
-      lcd.print(" ");
-      cur = 0; 
+    lcd.backlight();
+    switch (cur) {
+      case 1:
+        lcd.setCursor(0,1);
+        lcd.print("\x3E");
+        lcd.setCursor(10,3);
+        lcd.print(" ");
+        cur = 2;
+      break;
+
+      case 2:
+        lcd.setCursor(10,1);
+        lcd.print("\x3E");
+        lcd.setCursor(0,1);
+        lcd.print(" ");
+        cur = 3;
+      break;
+
+      case 3:
+        lcd.setCursor(0,3);
+        lcd.print("\x3E");
+        lcd.setCursor(10,1);
+        lcd.print(" ");
+        cur = 4;
+      break;
+
+      case 4:
+        lcd.setCursor(10,3);
+        lcd.print("\x3E");
+        lcd.setCursor(0,3);
+        lcd.print(" ");
+        cur = 1;
+      break;
     }
   }
-  if (btn7.isClick()){
-    if (cur) {
-      lcd.setCursor(7, 3);
-      hum--;
-      if (hum < 0) hum = 0;
-      if (hum > 100) hum = 100;
-      lcd.print(hum);
-      if (hum < 10) {
-        lcd.setCursor(12, 3);
-        lcd.print(" ");
-      }
-      EEPROM.update(0, hum);
-    }
-    if (!cur) {
-      temp--;
-      if (temp < 10) {
-        lcd.setCursor(13, 1);
-        lcd.print(" ");
-      }
-      lcd.setCursor(7, 1);
-      lcd.print(temp);
-      EEPROM.update(1, temp);
-    }
-  }  
+  if (btn7.isClick() || btn7.isStep()){
+    lcd.backlight();
+    switch (cur) {
+      case 2:
+        thyst--;
+        if (thyst < 1) thyst = 1;
+        EEPROM.update(2, thyst);
+      break;
 
-    if (btn7.isStep()) {  //inc button
-      if (cur) {
-        lcd.setCursor(7, 3);
-        hum = hum - 2;
-        if (hum < 0) hum = 0;
-        if (hum > 100) hum = 100;
-        lcd.print(hum);
-        if (hum < 10) {
-          lcd.setCursor(12, 3);
+      case 3:
+        temp--;
+        if (temp < 10) {
+          lcd.setCursor(19, 1);
           lcd.print(" ");
         }
-        EEPROM.update(0, hum);
-      }
-      if (!cur) {
-      temp = temp - 2;
-      if (temp < 10) {
-        lcd.setCursor(13, 1);
+        EEPROM.update(1, temp);
+      break;
+
+      case 4:
+        hhyst--;
+        if (hhyst < 1) hhyst = 1;
+        EEPROM.update(3, hhyst);
+      break;
+
+      case 1:
+        hum--;
+        if (hum < 0) hum = 0;
+        if (hum > 100) hum = 100;
+        if (hum < 10) {
+        lcd.setCursor(18, 3);
         lcd.print(" ");
-      }
-      lcd.setCursor(7, 1);
-      lcd.print(temp);
-      EEPROM.update(1, temp);
+        }
+        EEPROM.update(0, hum);
+      break;
       }
     }
     
-  if (btn8.isClick()){
-    if (cur) {
-      lcd.setCursor(7, 3);
-      hum++;
-      if (hum > 100) hum = 100;
-      lcd.print(hum);
-      EEPROM.update(0, hum);
-    }
-    if (!cur) {
-      lcd.setCursor(7, 1);
-      temp++;
-      lcd.print(temp);
-      EEPROM.update(1, temp);
-    }
-  }
-    if (btn8.isStep()) {  //inc button
-    if (cur) {
-      lcd.setCursor(7, 3);
-      hum = hum + 3;
-      if (hum > 100) hum = 100;
-      lcd.print(hum);
-      EEPROM.update(0, hum);
-    }
-    if (!cur) {
-      lcd.setCursor(7, 1);
-      temp = temp + 3;
-      lcd.print(temp);
-      EEPROM.update(1, temp);
-    }
+    
+  if (btn8.isClick() || btn8.isStep()){
+    lcd.backlight();
+    switch (cur) {
+      case 2:
+        thyst++;
+        EEPROM.update(2, thyst);
+      break;
+
+      case 3:
+        temp++;
+        EEPROM.update(1, temp);
+      break;
+
+      case 4:
+        hhyst++;
+        EEPROM.update(3, hhyst);
+      break;
+
+      case 1:
+        hum++;
+        if (hum > 100) hum = 100;
+        EEPROM.update(0, hum);
+      break;
+      }
   }
   if (i > 500) { // instead delay()
    currentValues();
@@ -162,10 +173,19 @@ void loop()
 
   if (millis() - tmr >= 1000) { //computing the relay state with hysteresis
     tmr = millis();
-    if (SHT2x.GetHumidity() < (hum - 3)) digitalWrite(RegUPpin, 0); 
-    else digitalWrite(RegUPpin, 1);
-    if (SHT2x.GetHumidity() > (hum + 3)) digitalWrite(RegDOWNpin, 0); 
-    else digitalWrite(RegDOWNpin, 1);
+    if (SHT2x.GetHumidity() < (hum - hhyst)) digitalWrite(hRegUPpin, 0); 
+    else digitalWrite(hRegUPpin, 1);
+    if (SHT2x.GetHumidity() > (hum + hhyst)) digitalWrite(hRegDOWNpin, 0); 
+    else digitalWrite(hRegDOWNpin, 1);
+
+    if (SHT2x.GetTemperature() < (temp - thyst)) digitalWrite(tRegUPpin, 0); 
+    else digitalWrite(tRegUPpin, 1);
+    if (SHT2x.GetTemperature() > (temp + thyst)) digitalWrite(tRegDOWNpin, 0); 
+    else digitalWrite(tRegDOWNpin, 1);
+  }
+  if (btn3.isClick() == false and btn7.isClick() == false and btn8.isClick() == false and millis() - tmr >= 5000) {
+    tmr = millis();
+    lcd.noBacklight();
   }
 }
 
@@ -188,13 +208,17 @@ void currentValues() {
   lcd.print("\x25"); 
 }
 void customValues() { 
-  lcd.setCursor(7,1);
+  lcd.setCursor(12,1);
   lcd.print(temp);
   lcd.print("\1");
   lcd.print("C");                                             
-  lcd.setCursor(7,3);
+  lcd.setCursor(12,3);
   lcd.print(hum);
   lcd.print("\x25");
+  lcd.setCursor(3,3);
+  lcd.print(hhyst);
+  lcd.setCursor(3,1);
+  lcd.print(thyst);
 }
 void softReset() { //soft reset method
   asm volatile ("jmp 0");
