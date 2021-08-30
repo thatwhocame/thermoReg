@@ -2,7 +2,7 @@
 This repository contains the code and scheme for repeating the thermostat steam project for the climatic chamber, which is used for damp-drying sausages.
 
 Glad to see constructive criticism of the code.
-----------------------------------------------------------------------
+---
 The thermostat for the climate chamber maintains the set temperature and humidity using hysteresis. The project was created for a Russian customer, therefore "humidity" and "temperature" are written in Russian, this can be changed if desired (At the beginning of the code there is a setting of the language and type of sensor GY-21 or DHTxx sensors). The device scheme looks like this:
 ![Schematic_thermoRegulator_2021-08-31](https://user-images.githubusercontent.com/66080483/131405625-526c3f9e-105f-40e0-a3dd-262c95d7d9cb.png)
 
