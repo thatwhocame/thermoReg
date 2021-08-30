@@ -1,7 +1,15 @@
-#define tRegUPpin 9
-#define tRegDOWNpin 12
+#define tRegUPpin 12
+#define tRegDOWNpin 9
 #define hRegUPpin 11
 #define hRegDOWNpin 10
+
+//#define dht.begin(); Wire.begin();  //Uncomment this string if you want use DHT11 or DHT22 instead GY-21
+//#define dht.readHumidity() SHT2x.GetHumidity()  //Uncomment this string if you want to use DHT for humidity
+//#define dht.readTemperature() SHT2x.GetTemperature()  //Uncomment this string if you want to use DHT for temperature
+
+//#define Eng(); Rus();  //Uncomment this string if you want change language to english
+
+#include "DHT.h"
 #include <Wire.h>
 #include <Sodaq_SHT2x.h>
 #include <LiquidCrystal_I2C.h>
@@ -183,7 +191,7 @@ void loop() {
     if (SHT2x.GetTemperature() > (temp + thyst)) digitalWrite(tRegDOWNpin, 0); 
     else digitalWrite(tRegDOWNpin, 1);
   }
-  if (btn3.isClick() == false and btn7.isClick() == false and btn8.isClick() == false and millis() - tmr >= 5000) {
+  if (millis() - tmr == 5000) {
     tmr = millis();
     lcd.noBacklight();
   }
@@ -192,6 +200,24 @@ void loop() {
 void currentValues() {
   float tValue = SHT2x.GetTemperature(); //temp value from sensor
   float hValue = SHT2x.GetHumidity(); //hum value from sensor
+  Rus();
+}
+
+void customValues() { 
+  lcd.setCursor(12,1);
+  lcd.print(temp);
+  lcd.print("\1");
+  lcd.print("C");                                             
+  lcd.setCursor(12,3);
+  lcd.print(hum);
+  lcd.print("\x25");
+  lcd.setCursor(3,3);
+  lcd.print(hhyst);
+  lcd.setCursor(3,1);
+  lcd.print(thyst);
+}
+
+void Rus() { //Russian language
   lcd.createChar(1, simvol);  //rendering text and values
   lcd.setCursor(0,0);
   lcd.print("TEM\4""EPAT\2""PA\x3A");
@@ -207,19 +233,24 @@ void currentValues() {
   lcd.setCursor(18,2);   
   lcd.print("\x25"); 
 }
-void customValues() { 
-  lcd.setCursor(12,1);
-  lcd.print(temp);
+
+void Eng() { //English language
+  lcd.createChar(1, simvol);  //rendering text and values
+  lcd.setCursor(0,0);
+  lcd.print("Temperature\x3A");
+  lcd.setCursor(13, 0);
+  lcd.print(tValue);
+  lcd.setCursor(18,0);                         
   lcd.print("\1");
   lcd.print("C");                                             
-  lcd.setCursor(12,3);
-  lcd.print(hum);
-  lcd.print("\x25");
-  lcd.setCursor(3,3);
-  lcd.print(hhyst);
-  lcd.setCursor(3,1);
-  lcd.print(thyst);
+  lcd.setCursor(0, 2);
+  lcd.print("Humidity\x3A");
+  lcd.setCursor(13,2);
+  lcd.print(hValue);
+  lcd.setCursor(18,2);   
+  lcd.print("\x25"); 
 }
+
 void softReset() { //soft reset method
   asm volatile ("jmp 0");
 }
