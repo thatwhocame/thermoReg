@@ -14,7 +14,7 @@ Components:
 4. Temperature and humidity sensor GY-21
 5. 4 channel electromagnetic relay
 6. Wires/PCB
-7. Box
+7. Box (**box isn't adapted to PCB!**)
 8. Patience 
 
 ![photo_2021-08-30_23-27-26 (2)](https://user-images.githubusercontent.com/66080483/131401637-1efc7748-a6ba-4daa-a6ec-16509663b7be.jpg)
