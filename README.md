@@ -33,3 +33,7 @@ I have developed a printed circuit board for this project, the gerber file is in
 
 ----------------------------------------------------------------------
 If these materials were useful to you, please subscribe
+
+
+----------------------------------------------------------------------
+Thanks to AlexGyver for his wonderful libraries. (https://github.com/GyverLibs)
